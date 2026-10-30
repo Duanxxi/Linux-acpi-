@@ -171,24 +171,6 @@ case $? in
     6) echo "没找到" ;;
     *) echo "出错了" ;;
 esac
-```
-
----
-
-## 注意事项
-
-**1. ACPI 表含有设备指纹。**
-`dsdt.dsl` 里会有主板型号（`OEM ID` / `OEM Table ID`）、固件版本、UUID 等信息。往公开仓库或 issue 里贴之前，先删掉这些字段。
-
-**2. 不同机器的表差异很大。**
-同型号不同批次的主板，DSDT 都可能不同。所以本仓库**不放任何真实 dump 的示例文件**。
-
-**3. 反编译失败是正常的。**
-部分厂商的 AML 不完全符合规范，`iasl` 会报错。脚本会自动用 `-f` 强制再来一次，仍有警告不影响阅读。
-
-**4. 只支持 Linux。**
-`acpidump` 依赖 Linux 的 `/sys/firmware/acpi/tables` 和 `/dev/mem`。Windows 下请用 RWEverything 或 ACPI 工具，macOS 不适用。
-
 ---
 
 ## 原理
@@ -205,41 +187,3 @@ esac
 ```
 
 ACPI 表在运行时由固件（UEFI/BIOS）交给操作系统，内核把它们暴露在 `/sys/firmware/acpi/tables/`。`acpidump` 读这些表并转成二进制文件，`iasl` 再把 AML 字节码反编译成人能读的 ASL。
-
-对固件工程师来说，这条链路是排查"开机某个设备不工作""电源状态切换异常""某个驱动 probe 失败"的第一现场。
-
----
-
-## 上传到 GitHub
-
-**先改两处占位符**，否则仓库里会留着 `<your name>`：
-
-1. `LICENSE` 第 3 行：`Copyright (c) 2026 <your name>` → 你的名字
-2. `README.md` 里 `https://github.com/<your-name>/acpi-dump.git` → 你的用户名
-
-然后：
-
-```bash
-cd D:/扩展/Github-acpi
-git init
-git add .
-git commit -m "feat: ACPI 表导出 / 反编译 / 查找工具"
-git branch -M main
-git remote add origin https://github.com/<your-name>/acpi-dump.git
-git push -u origin main
-```
-
-`.gitattributes` 已把 `*.sh` 固定为 LF，`.gitignore` 已排除 `acpi_out/` 和所有 `*.dat`/`*.dsl`，所以你本机导出的表不会被误传上去。
-
-**如果 Windows 上 `git status` 显示脚本被改成了 CRLF**，执行一次：
-
-```bash
-git config core.autocrlf input
-git rm --cached -r . && git reset --hard
-```
-
----
-
-## License
-
-MIT
